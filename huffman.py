@@ -12,8 +12,39 @@ class HuffmanEncoding:
             encoded_text (str, optional): The encoded text to be decoded.
             root (Node, optional): The root node of the Huffman tree for decoding.
         """
-        pass
-    
+        self.src = src
+        self.root = root
+        self.e_text = encoded_text
+
+        frequency = {}
+
+        for x in src:
+            if x not in frequency:
+                frequency[x] = 1
+            
+            else:
+                frequency.update({x: frequency[x] + 1})
+
+        print(frequency)
+
+        items = []
+        keys = []
+        for x, y in frequency.items():
+            items.append((x, y))
+            keys.append(x)
+
+        items.sort(key=lambda x: x[1], reverse = True)
+
+        print(items)
+
+        nodes = MinPQ()
+        for x in items:
+            nodes.insert(x[1], self.Node(x[1], x[0]))
+        
+        self.nodes = nodes
+
+        self.build_tree(nodes)
+
     class Node:
         def __init__(self, freq, char=None, left=None, right=None):
             self.char = char
@@ -30,15 +61,18 @@ class HuffmanEncoding:
         Returns:
             str: The encoded text as a string of 0s and 1s.
         """
-        pass
+        if self.e_text != None: return self.e_text
+
+        e_text = ""
+        for x in self.src:
+            e_text += self.dictionary[x] 
+
+        self.e_text = e_text
+        return self.e_text
+
 
     def source_text(self):
-        """
-        Returns the original source text.
-        Returns:
-            str: The original source text.
-        """
-        pass
+        return self.src
 
     def root(self):
         """
@@ -46,7 +80,20 @@ class HuffmanEncoding:
         Returns:
             Node: The root node of the Huffman tree.
         """
-        pass
+        return self.root
+
+    def build_tree(self, nodes):
+
+        while nodes.size() > 1:
+            node_a = self.nodes.del_min()
+            node_b = self.nodes.del_min()
+            new_frequency = node_a.freq + node_b.freq
+            self.nodes.insert(new_frequency, self.Node(new_frequency, None, node_a, node_b))
+            print("Done")
+        
+        self.nodes = nodes.del_min()
+        self.dictionary = self._build_dictionary(self.nodes)
+        print(self.dictionary)
     
     def _build_dictionary(self, node=None, prefix=''):
         """
@@ -60,6 +107,7 @@ class HuffmanEncoding:
             dict: A dictionary where keys are characters and values are their corresponding
                   Huffman codes.
         """
+
         if node is None:
             node = self.root
         
@@ -70,3 +118,8 @@ class HuffmanEncoding:
         dictionary.update(self._build_dictionary(node.left, prefix + '0'))
         dictionary.update(self._build_dictionary(node.right, prefix + '1'))
         return dictionary
+    
+Huff = HuffmanEncoding("Hello World")
+print(Huff.encoding())
+print(Huff.source_text())
+
